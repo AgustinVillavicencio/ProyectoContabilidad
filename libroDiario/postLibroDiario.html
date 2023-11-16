@@ -19,6 +19,7 @@
         <input type="number" id="cantidadItems" name="cantidadItems" required>
         <button type="button" onclick="configurarAsiento()">Confirmar Cantidad</button>
     </form>
+    <button type="button" onclick="volver()">Volver</button>
 
     <script>
         function configurarAsiento() {
@@ -26,8 +27,8 @@
             const cantidadItems = document.getElementById('cantidadItems').value;
 
             // Validar que la cantidad de ítems sea un número positivo
-            if (isNaN(cantidadItems) || cantidadItems <= 0) {
-                alert("Por favor, ingrese un número válido y positivo para la cantidad de ítems.");
+            if (cantidadItems < 2) {
+                alert("Los asientos contables deben tener minimo 2 movimientos");
                 return;
             }
 
@@ -63,6 +64,9 @@
                     <!-- Agregado: input para el código mayor -->
                     <input type="hidden" id="mayor${i}" name="mayor${i}">
 
+                    <!-- Agregado: input para el código mayor -->
+                    <input type="hidden" id="nroCuenta${i}" name="nroCuenta${i}">
+
                     <br><br>
                 `;
 
@@ -94,6 +98,12 @@
                     // Limpiar opciones anteriores
                     comboBox.innerHTML = '';
 
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = ''; // Puedes asignar un valor específico si lo necesitas
+                    defaultOption.text = '--Seleccione cuenta--';
+                    comboBox.appendChild(defaultOption);
+
+
                     // Iterar sobre los datos y agregar opciones al combobox
                     data.forEach(description => {
                         const option = document.createElement('option');
@@ -106,30 +116,83 @@
             .catch(error => console.error('Error al obtener datos:', error));
         }
 
-        // Función para obtener el dato requerido (FK_mayor) al seleccionar una cuenta
-        function obtenerFKMayor(index) {
+        function obtenerDatos(index) {
             const selectedCuenta = document.getElementById(`cuenta${index}`).value;
 
-            // Realizar la solicitud GET para obtener el dato requerido
-            fetch(`apiLibroDiario.php?tipo=FK_mayor&cuenta=${selectedCuenta}`)
+            // Realizar la solicitud GET para obtener los datos requeridos
+            fetch(`apiLibroDiario.php?tipo=datos_cuenta&cuenta=${selectedCuenta}`)
             .then(response => response.json())
             .then(data => {
                 // Obtener el elemento input para el código mayor
                 const inputMayor = document.getElementById(`mayor${index}`);
+                console.log(inputMayor);  // Agrega esta línea
+                // Obtener el elemento input para el nroCuenta
+                const inputNroCuenta = document.getElementById(`nroCuenta${index}`);
+                console.log(inputNroCuenta);  // Agrega esta línea
 
-                // Llenar el input con el dato requerido
+                // Llenar los inputs con los datos requeridos
                 inputMayor.value = data.FK_mayor;
+                inputNroCuenta.value = data.nroCuenta;
+
+                // Imprimir valores en la consola
+                    console.log(`Valores del ítem ${index}:`);
+                    console.log(`mayor: ${data.FK_mayor}`);
+                    console.log(`nroCuenta: ${data.nroCuenta}`);
             })
-            .catch(error => console.error('Error al obtener datos:', error));
+            .catch(error => console.error('Error al obtener datos de la cuenta:', error));
+        }
+
+        // Función para obtener el dato requerido (FK_mayor) al seleccionar una cuenta
+
+        function obtenerFKMayor(index) {
+            obtenerDatos(index);
         }
 
         function guardarAsientos() {
             // Obtener la cantidad de ítems ingresada
             const cantidadItems = document.getElementById('cantidadItems').value;
 
+            // Variables para almacenar las sumas de los importes en el "Debe" y "Haber"
+            let totalDebe = 0;
+            let totalHaber = 0;
+
             // Recorrer todos los ítems
             for (let i = 1; i <= cantidadItems; i++) {
-                // Llamar a la función guardarAsientos(index) para cada ítem
+                // Obtener los elementos del formulario específico
+                const tipoMovimiento = document.getElementById(`tipoMovimiento${i}`).value;
+                const importe = parseFloat(document.getElementById(`importe${i}`).value);
+
+                // Validar que el importe sea mayor a 0
+                if (importe <= 0 || isNaN(importe)) {
+                    alert(`El importe ingresado en el ítem ${i} debe ser mayor a 0.`);
+                    return; // Salir de la función si el importe no es válido
+                }
+
+                // Sumar al "Debe" o "Haber" según corresponda
+                if (tipoMovimiento === 'debe') {
+                    totalDebe += importe;
+                } else {
+                    totalHaber += importe;
+                }
+
+                // Obtener el valor seleccionado en el combo de cuenta
+                const cuentaSeleccionada = document.getElementById(`cuenta${i}`).value;
+
+                // Verificar si el usuario seleccionó "--Seleccione cuenta--"
+                if (cuentaSeleccionada === '') {
+                    alert(`Por favor, seleccione una cuenta para el ítem ${i}.`);
+                    return; // Salir de la función si no se ha seleccionado una cuenta
+                }
+            }
+
+            // Verificar si el total del "Debe" es igual al total del "Haber"
+            if (totalDebe !== totalHaber) {
+                alert('La suma de los importes en "Debe" no es igual a la suma en "Haber".');
+                return; // Salir de la función si no son iguales
+            }
+            alert("Asiento guardado con exito!")
+            // Si pasa todas las validaciones, llamar a la función guardarAsiento(index) para cada ítem
+            for (let i = 1; i <= cantidadItems; i++) {
                 guardarAsiento(i);
             }
         }
@@ -137,33 +200,35 @@
         // Función para guardar el asiento
         function guardarAsiento(index) {
             // Obtener los elementos del formulario específico
-            const nroAsiento=document.getElementById(`nroAsiento`).value;
-            const fecha=document.getElementById(`fecha`).value;
+            const nroAsiento = document.getElementById(`nroAsiento`).value;
+            const fecha = document.getElementById(`fecha`).value;
             const tipoMovimiento = document.getElementById(`tipoMovimiento${index}`).value;
             const importe = document.getElementById(`importe${index}`).value;
-            const cuenta = document.getElementById(`cuenta${index}`).value;
             const mayor = document.getElementById(`mayor${index}`).value;
+            const nroCuenta = document.getElementById(`nroCuenta${index}`).value;
 
-            // Crear un nuevo objeto FormData
-            const formData = new FormData();
-            
-            // Agregar datos al formulario específico
-            formData.append('itemIndex', index);
-            formData.append('nroAsiento', nroAsiento);
-            formData.append('fecha', fecha);
-            formData.append('tipoMovimiento', tipoMovimiento);
-            formData.append('importe', importe);
-            formData.append('cuenta', cuenta);
-            formData.append('mayor', mayor);
-
-            for (const entry of formData.entries()) {
-                console.log(entry);
+            if (!nroAsiento || !fecha || !tipoMovimiento || !importe || !nroCuenta || !mayor) {
+                console.error('Alguno de los elementos del formulario no existe.');
+                return;
             }
+
+            // Crear un objeto con los datos del formulario
+            const data = {
+                nroAsiento: nroAsiento,
+                fecha: fecha,
+                tipoMovimiento: tipoMovimiento,
+                importe: importe,
+                mayor: mayor,
+                nroCuenta: nroCuenta
+            };
 
             // Realizar la solicitud POST para enviar los datos a apiLibroDiario.php
             fetch('apiLibroDiario.php', {
                 method: 'POST',
-                body: formData,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
             })
             .then(response => response.json())
             .then(data => {
@@ -175,6 +240,9 @@
                 console.error('Error:', error);
                 // Aquí puedes manejar errores específicos del lado del cliente
             });
+        }
+        function volver() {
+            window.location.href = 'crudLibroDiario.html';
         }
     </script>
 

@@ -72,20 +72,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
             // Devolver las descripciones como JSON
         echo json_encode($data);
-    } elseif ($tipo === 'FK_mayor') {
+    } elseif ($tipo === 'datos_cuenta') {
         $cuenta = isset($_GET['cuenta']) ? $_GET['cuenta'] : null;
 
         if ($cuenta) {
                 // Obtener FK_mayor para la cuenta seleccionada
-            $sql = "SELECT FK_libro_mayor FROM plan_de_cuentas WHERE descripcion = '$cuenta'";
+            $sql = "SELECT FK_libro_mayor,nroCuenta FROM plan_de_cuentas WHERE descripcion = '$cuenta'";
             $result = $conn->query($sql);
 
             $data = array();
 
             if ($row = $result->fetch_assoc()) {
                 $data['FK_mayor'] = $row['FK_libro_mayor'];
+                $data['nroCuenta'] = $row['nroCuenta'];
             } else {
                 $data['FK_mayor'] = null;
+                $data['nroCuenta'] = null;
             }
 
             echo json_encode($data);
@@ -101,37 +103,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Decodificar los datos JSON enviados en la solicitud POST
     $postData = json_decode(file_get_contents("php://input"), true);
-
+    echo "Datos decodificados POST: " . print_r($postData, true);
     // Asegurarse de que los valores no sean nulos antes de asignarlos
     $nroAsiento = isset($postData['nroAsiento']) ? $postData['nroAsiento'] : null;
     $fecha = isset($postData['fecha']) ? $postData['fecha'] : null;
     $importe = isset($postData['importe']) ? $postData['importe'] : null;
-    $cuenta = isset($postData['cuenta']) ? $postData['cuenta'] : null;
+    $nroCuenta = isset($postData['nroCuenta']) ? $postData['nroCuenta'] : null;
     $mayor = isset($postData['mayor']) ? $postData['mayor'] : null;
     $tipoMovimiento = isset($postData['tipoMovimiento']) ? $postData['tipoMovimiento'] : null;
+    $valorCero=0;
 
     // Validar y limpiar datos
-    $nroAsiento = mysqli_real_escape_string($conn, $nroAsiento);
-    $fecha = mysqli_real_escape_string($conn, $fecha);
-    $importe = mysqli_real_escape_string($conn, $importe);
-    $cuenta = mysqli_real_escape_string($conn, $cuenta);
-    $mayor = mysqli_real_escape_string($conn, $mayor);
-    $tipoMovimiento = mysqli_real_escape_string($conn, $tipoMovimiento);
+    $nroAsiento = isset($postData['nroAsiento']) ? htmlspecialchars($postData['nroAsiento']) : null;
+    $fecha = isset($postData['fecha']) ? htmlspecialchars($postData['fecha']) : null;
+    $importe = isset($postData['importe']) ? htmlspecialchars($postData['importe']) : null;
+    $nroCuenta = isset($postData['nroCuenta']) ? htmlspecialchars($postData['nroCuenta']) : null;
+    $mayor = isset($postData['mayor']) ? htmlspecialchars($postData['mayor']) : null;
+    $tipoMovimiento = isset($postData['tipoMovimiento']) ? htmlspecialchars($postData['tipoMovimiento']) : null;
 
     // Verificar que los valores requeridos no sean nulos antes de insertar
-    if ($nroAsiento !== null && $fecha !== null && $importe !== null && $cuenta !== null && $mayor !== null && $tipoMovimiento !== null) {
+    if ($nroAsiento !== null && $fecha !== null && $importe !== null && $nroCuenta !== null && $mayor !== null && $tipoMovimiento !== null) {
         // Construir consulta SQL de manera segura
         if ($tipoMovimiento == "debe") {
-            $sql = "INSERT INTO libro_diario (nroAsiento, fecha, debe, haber, FK_libro_mayor, FK_plan_de_cuentas) 
+            $sql = "INSERT INTO libro_diario (nroAsiento, fecha, debe, haber, FK_mayor, FK_plan_de_cuentas) 
                     VALUES (?, ?, ?, ?, ?, ?)";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("isddii", $nroAsiento, $fecha, $importe, $valorCero, $mayor, $nroCuenta);
         } else {
             $sql = "INSERT INTO libro_diario (nroAsiento, fecha, debe, haber, FK_mayor, FK_plan_de_cuentas) 
                     VALUES (?, ?, ?, ?, ?, ?)";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("isddii", $nroAsiento, $fecha, $valorCero,$importe, $mayor, $nroCuenta);
         }
-
-        // Preparar y ejecutar la consulta
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssss", $nroAsiento, $fecha, $importe, 0, $mayor, $cuenta);
 
         if ($stmt->execute()) {
             echo json_encode(array('message' => 'Asiento guardado correctamente'));
