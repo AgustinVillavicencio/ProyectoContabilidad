@@ -102,13 +102,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Decodificar los datos JSON enviados en la solicitud POST
     $postData = json_decode(file_get_contents("php://input"), true);
 
-    // Obtener los valores del formulario
-    $nroAsiento = $postData['nroAsiento'];
-    $fecha = $postData['fecha'];
-    $importe = $postData['importe'];
-    $cuenta = $postData['cuenta'];
-    $mayor = $postData['mayor'];
-    $tipoMovimiento = $postData['tipoMovimiento']; // Asegúrate de definir $tipoMovimiento
+    // Asegurarse de que los valores no sean nulos antes de asignarlos
+    $nroAsiento = isset($postData['nroAsiento']) ? $postData['nroAsiento'] : null;
+    $fecha = isset($postData['fecha']) ? $postData['fecha'] : null;
+    $importe = isset($postData['importe']) ? $postData['importe'] : null;
+    $cuenta = isset($postData['cuenta']) ? $postData['cuenta'] : null;
+    $mayor = isset($postData['mayor']) ? $postData['mayor'] : null;
+    $tipoMovimiento = isset($postData['tipoMovimiento']) ? $postData['tipoMovimiento'] : null;
 
     // Validar y limpiar datos
     $nroAsiento = mysqli_real_escape_string($conn, $nroAsiento);
@@ -118,37 +118,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $mayor = mysqli_real_escape_string($conn, $mayor);
     $tipoMovimiento = mysqli_real_escape_string($conn, $tipoMovimiento);
 
-    // Construir consulta SQL de manera segura
-    if($tipoMovimiento=="debe"){
-        $sql = "INSERT INTO libro_diario (nroAsiento, fecha, debe, haber, FK_libro_mayor, FK_plan_de_cuentas) 
-            VALUES (?, ?, ?, ?, ?, ?)";
+    // Verificar que los valores requeridos no sean nulos antes de insertar
+    if ($nroAsiento !== null && $fecha !== null && $importe !== null && $cuenta !== null && $mayor !== null && $tipoMovimiento !== null) {
+        // Construir consulta SQL de manera segura
+        if ($tipoMovimiento == "debe") {
+            $sql = "INSERT INTO libro_diario (nroAsiento, fecha, debe, haber, FK_libro_mayor, FK_plan_de_cuentas) 
+                    VALUES (?, ?, ?, ?, ?, ?)";
+        } else {
+            $sql = "INSERT INTO libro_diario (nroAsiento, fecha, debe, haber, FK_mayor, FK_plan_de_cuentas) 
+                    VALUES (?, ?, ?, ?, ?, ?)";
+        }
 
         // Preparar y ejecutar la consulta
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ssssss", $nroAsiento, $fecha, $importe, 0, $mayor, $cuenta);
 
-    }else{
-        $sql = "INSERT INTO libro_diario (nroAsiento, fecha, debe, haber, FK_mayor, FK_plan_de_cuentas) 
-            VALUES (?, ?, ?, ?, ?, ?)";
+        if ($stmt->execute()) {
+            echo json_encode(array('message' => 'Asiento guardado correctamente'));
+        } else {
+            echo json_encode(array('error' => 'Error al guardar el asiento: ' . $stmt->error));
+        }
 
-        // Preparar y ejecutar la consulta
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssss", $nroAsiento, $fecha, 0, $importe, $mayor, $cuenta); 
-    }
-    
-    if ($stmt->execute()) {
-        echo json_encode(array('message' => 'Asiento guardado correctamente'));
+        // Cerrar la declaración preparada
+        $stmt->close();
     } else {
-        echo json_encode(array('error' => 'Error al guardar el asiento: ' . $stmt->error));
+        http_response_code(400); // Solicitud incorrecta
+        echo json_encode(array('error' => 'Valores requeridos nulos en la solicitud POST'));
     }
-    
-
-    // Cerrar la declaración preparada
-    $stmt->close();
 } else {
     // Tipo de solicitud no válido
     http_response_code(400); // Solicitud incorrecta
-    echo json_encode(array('error' => 'Tipo de solicitud no válido'));
+    echo json_encode(array('error' => 'Tipo de solicitud no valido'));
 }
 
 // Cerrar la conexión
