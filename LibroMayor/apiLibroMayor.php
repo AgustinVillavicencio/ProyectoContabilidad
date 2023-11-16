@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $sql = "SELECT lm.nroCuenta, pdc.descripcion, lm.mes, lm.anio, lm.total_debe, lm.total_haber, lm.saldo
             FROM libro_mayor lm
             JOIN plan_de_cuentas pdc ON lm.nroCuenta = pdc.nroCuenta 
-            WHERE nroCuenta = '$nroCuenta' AND mes = '$mes' AND anio = '$anio'";
+            WHERE lm.nroCuenta = '$nroCuenta' AND lm.mes = '$mes' AND lm.anio = '$anio'";
 
     $result = $conn->query($sql);
 
