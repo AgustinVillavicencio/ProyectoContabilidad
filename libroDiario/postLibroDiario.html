@@ -195,6 +195,7 @@
             for (let i = 1; i <= cantidadItems; i++) {
                 guardarAsiento(i);
             }
+            redirigirPagina('crudLibroDiario.html')
         }
 
         // Función para guardar el asiento
@@ -243,6 +244,10 @@
         }
         function volver() {
             window.location.href = 'crudLibroDiario.html';
+        }
+
+        function redirigirPagina(pagina) {
+            window.location.href = pagina;
         }
     </script>
 

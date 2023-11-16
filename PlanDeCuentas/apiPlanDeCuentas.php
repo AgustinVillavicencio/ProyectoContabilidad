@@ -85,7 +85,8 @@ $conn->close();
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Función para obtener datos de la solicitud
-function get_data_from_request() {
+function get_data_from_request()
+{
     $data = array();
 
     // Manejar datos de formulario codificado
@@ -155,7 +156,7 @@ switch ($method) {
             echo json_encode(["message" => "No se encontraron registros."]);
         }
         break;
-    
+
     case 'POST':
         // Manejar la solicitud POST (ejemplo: insertar nuevo registro)
         // Asegúrate de validar y sanitizar los datos antes de usarlos en la consulta
@@ -174,7 +175,7 @@ switch ($method) {
             echo "Error al insertar el registro: " . $conn->error;
         }
         break;
-    
+
     case 'PUT':
         // Manejar la solicitud PUT (ejemplo: actualizar un registro)
         // Asegúrate de validar y sanitizar los datos antes de usarlos en la consulta
@@ -192,29 +193,29 @@ switch ($method) {
             echo "Error al actualizar el registro: " . $conn->error;
         }
         break;
-    
-        case 'DELETE':
-            // Manejar la solicitud DELETE (ejemplo: eliminar un registro)
-            // Asegúrate de validar y sanitizar los datos antes de usarlos en la consulta
-            $deleteData = get_data_from_request();
-        
-            // Verificar si la clave 'rubro' está presente en $deleteData
-            $rubro = isset($deleteData['rubro']) ? $conn->real_escape_string($deleteData['rubro']) : null;
-            $nroCuenta = (int)$deleteData['nroCuenta'];
-        
-            if ($rubro !== null) {
-                $deleteQuery = "DELETE FROM plan_de_cuentas WHERE rubro='$rubro' AND nroCuenta=$nroCuenta";
-        
-                if ($conn->query($deleteQuery) === TRUE) {
-                    echo json_encode(["message" => "Registro eliminado con éxito."]);
-                } else {
-                    echo "Error al eliminar el registro: " . $conn->error;
-                }
+
+    case 'DELETE':
+        // Manejar la solicitud DELETE (ejemplo: eliminar un registro)
+        // Asegúrate de validar y sanitizar los datos antes de usarlos en la consulta
+        $deleteData = get_data_from_request();
+
+        // Verificar si la clave 'rubro' está presente en $deleteData
+        $rubro = isset($deleteData['rubro']) ? $conn->real_escape_string($deleteData['rubro']) : null;
+        $nroCuenta = (int)$deleteData['nroCuenta'];
+
+        if ($rubro !== null) {
+            $deleteQuery = "DELETE FROM plan_de_cuentas WHERE rubro='$rubro' AND nroCuenta=$nroCuenta";
+
+            if ($conn->query($deleteQuery) === TRUE) {
+                echo json_encode(["message" => "Registro eliminado con éxito."]);
             } else {
-                echo json_encode(["error" => "La clave 'rubro' no está presente en la solicitud DELETE."]);
+                echo "Error al eliminar el registro: " . $conn->error;
             }
-        
-            break;
+        } else {
+            echo json_encode(["error" => "La clave 'rubro' no está presente en la solicitud DELETE."]);
+        }
+
+        break;
 
     default:
         // Si la solicitud no es GET, POST, PUT ni DELETE
@@ -224,4 +225,3 @@ switch ($method) {
 
 // Cerrar la conexión a la base de datos
 $conn->close();
-?>
