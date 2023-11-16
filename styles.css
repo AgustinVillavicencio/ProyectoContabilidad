@@ -106,3 +106,7 @@ h1{
     box-sizing: border-box; /* Esto asegura que el ancho incluya el relleno y el borde */
     margin-bottom: 10px; /* Esto añade espacio entre los inputs */
 }
+
+.select-container {
+    margin-bottom: 20px;
+  }

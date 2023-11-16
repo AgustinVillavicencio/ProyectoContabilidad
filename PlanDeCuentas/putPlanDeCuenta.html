@@ -21,6 +21,11 @@
         
         <button type="button" onclick="guardarModificacion()">Guardar Modificación</button>
     </div>
+    <br>
+    <br>
+        
+    <!-- Botón "Volver" -->
+    <button type="button" onclick="volverAIndex()">Volver</button>
     <script>
         // Obtener parámetros de la URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -76,6 +81,10 @@
             } else {
                 alert("Por favor ingrese un rubro válido. Los rubros son: \n Activo=A\nPasivo=P\nPatrimonio neto=PN\nIngreso=I\nEgreso=E");
             }
+        }
+
+        function volverAIndex() {
+            window.location.href = 'crudPlanDeCuenta.html'; // Ajusta la ruta según sea necesario
         }
     </script>
 

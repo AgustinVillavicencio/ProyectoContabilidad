@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Página de Proyecto</title>
+    <style>
+        body {
+            text-align: center;
+            margin: 100px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>PROYECTO FINAL DE CONTABILIDAD</h1>
+
+    <button onclick="redirigirPagina('PlanDeCuentas/crudPlanDeCuenta.html')">Plan de Cuentas</button>
+    <button onclick="redirigirPagina('LibroDiario/crudLibroDiario.html')">Libro Diario</button>
+    <button onclick="redirigirPagina('pagina3.html')">Libro Mayor</button>
+
+    <script>
+        function redirigirPagina(pagina) {
+            window.location.href = pagina;
+        }
+    </script>
+</body>
+</html>

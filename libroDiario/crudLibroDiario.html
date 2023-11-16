@@ -18,6 +18,7 @@
         <input type="date" id="fecha" name="fecha" required>
 
         <button type="button" onclick="guardarAsiento()">Consultar</button>
+        <button type="button" onclick="irAPostLibroDiario()">Crear un asiento</button>
 
         <table id="asientoTable">
             <thead>
@@ -32,7 +33,13 @@
                 <!-- Aquí se llenarán los datos de la base de datos -->
             </tbody>
         </table>
+        
+
     </form>
+    <br>
+    <br>
+    <!-- Botón "Volver" -->
+    <button type="button" onclick="volverAIndex()">Volver</button>
 
     <script>
         function guardarAsiento() {
@@ -41,16 +48,18 @@
             var nroAsiento = document.getElementById('nroAsiento').value;
             const fecha = document.getElementById('fecha').value;
             if(nroAsiento==""){
-                nroAsiento=null;
+                nroAsiento=0;
             }
             // Crear un objeto con los datos del asiento
             const asientoData = {
                 nroAsiento: nroAsiento,
                 fecha: fecha,
             };
-        console.log(asientoData);
+            // Obtener el tipo deseado (en este caso, 'libro_diario')
+            const tipo = 'libro_diario';
+
             // Realizar la solicitud GET para obtener los datos de la base de datos
-            fetch(`apiLibroDiario.php?fecha=${fecha}&nroAsiento=${nroAsiento}`)
+            fetch(`apiLibroDiario.php?fecha=${fecha}&nroAsiento=${nroAsiento}&tipo=${tipo}`)
             .then(response => response.json())
             .then(data => {
                 // Imprimir la respuesta JSON en la consola
@@ -83,6 +92,20 @@
                 row.innerHTML = `<td>${entry.nroAsiento}</td><td>${entry.descripcion}</td><td>${entry.debe}</td><td>${entry.haber}</td>`;
                 tableBody.appendChild(row);
             });
+
+            // Agregar la última fila con la descripción "TOTAL" y los totales
+            // const totalRow = document.createElement('tr');
+            // totalRow.innerHTML = `<td></td><td>TOTAL</td><td>${data[data.length - 1].debe}</td><td>${data[data.length - 1].haber}</td>`;
+            // tableBody.appendChild(totalRow);
+
+        }
+
+        function volverAIndex() {
+            window.location.href = '../index.html'; // Ajusta la ruta según sea necesario
+        }
+
+        function irAPostLibroDiario() {
+            window.location.href = 'postLibroDiario.html'; // Ajusta la ruta según sea necesario
         }
     </script>
 

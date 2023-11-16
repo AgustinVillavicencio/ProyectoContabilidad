@@ -11,7 +11,6 @@
     <h2>Crear cuenta</h2>
 
     <form id="addForm">
-        <h3>Agregar Nueva Cuenta</h3>
         <p>Siglas para llenar el campo rubro:</p>
         <ul>
             <li>Activo = A</li>
@@ -28,31 +27,37 @@
         <input type="text" id="addDescripcion" name="addDescripcion" required placeholder="Descripcion...">
         <button type="button" onclick="addAccount()">Agregar Cuenta</button>
     </form>
-<div class="second">
-    <h2>Lista de Plan de Cuentas</h2>
+    <div class="second">
+        <h2>Lista de Plan de Cuentas</h2>
 
-    <!-- Formulario de búsqueda -->
-    <div class="buscador">
-        <form id="searchForm">
-            <label for="searchNroCuenta">Buscar por Nro Cuenta:</label>
-            <input type="text" id="searchNroCuenta" name="searchNroCuenta">
-            <button type="button" onclick="searchPlan()">Buscar</button>
-        </form>
+        <!-- Formulario de búsqueda -->
+        <div class="buscador">
+            <form id="searchForm">
+                <label for="searchNroCuenta">Buscar por Nro Cuenta:</label>
+                <input type="text" id="searchNroCuenta" name="searchNroCuenta">
+                <button type="button" onclick="searchPlan()">Buscar</button>
+            </form>
+        </div>
+        <div class="table-container">
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Rubro</th>
+                        <th>Nro Cuenta</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
     </div>
-    <div class="table-container">
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>Rubro</th>
-                    <th>Nro Cuenta</th>
-                    <th>Descripción</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
-</div>
+
+    <br>
+    <br>
+            
+    <!-- Botón "Volver" -->
+    <button type="button" onclick="volverAIndex()">Volver</button>
 <script>
 // Mover la función searchPlan fuera del bloque DOMContentLoaded
 function addAccount() {
@@ -258,6 +263,9 @@ function modificarCuenta(nroCuenta, rubro, descripcion) {
     // Redirigir a putPDC.html con los parámetros necesarios
     window.location.href = `putPlanDeCuenta.html?nroCuenta=${nroCuenta}&rubro=${rubro}&descripcion=${descripcion}`;
 
+}
+function volverAIndex() {
+    window.location.href = '../index.html'; // Ajusta la ruta según sea necesario
 }
 
 </script>
