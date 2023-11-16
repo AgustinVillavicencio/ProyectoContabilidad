@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Consulta de Mayor</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <h2>Consulta de Mayor</h2>
+    <form id="consultaForm">
+        <label for="nroCuenta">Nro de Cuenta:</label>
+        <input type="text" id="nroCuenta" name="nroCuenta" required><br>
+        
+        <label for="mes">Mes:</label>
+        <input type="text" id="mes" name="mes" required><br>
+        
+        <label for="anio">Año:</label>
+        <input type="text" id="anio" name="anio" required><br>
+        
+        <button type="button" onclick="consultarMayor()">Consultar</button>
+    </form>
+
+    <div id="resultado">
+        <h3>Resultados:</h3>
+        <table id="tablaResultado">
+            <thead>
+                <tr>
+                    <th>Cuenta</th>
+                    <th>Mes</th>
+                    <th>Año</th>
+                    <th>Descripción</th>
+                    <th>Total Debe</th>
+                    <th>Total Haber</th>
+                    <th>Saldo</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <button type="button" onclick="volver()">Volver</button>
+
+    <script>
+        function consultarMayor() {
+            // Obtener valores del formulario
+            var nroCuenta = document.getElementById("nroCuenta").value;
+            var mes = document.getElementById("mes").value;
+            var anio = document.getElementById("anio").value;
+
+            // Construir la URL de la API
+            var apiUrl = "apiLibroMayor.php?nroCuenta=" + nroCuenta + "&mes=" + mes + "&anio=" + anio;
+
+            // Realizar la solicitud AJAX
+            fetch(apiUrl)
+                .then(response => response.json()) // Cambiado a response.json()
+                .then(data => {
+                    // Mostrar los resultados en la tabla
+                    mostrarResultados(data);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function mostrarResultados(data) {
+            // Obtener la referencia de la tabla
+            var tablaResultado = document.getElementById("tablaResultado");
+
+            // Limpiar el cuerpo de la tabla
+            tablaResultado.getElementsByTagName('tbody')[0].innerHTML = '';
+
+            // Iterar sobre los resultados y agregar filas a la tabla
+            data.forEach(function(row) {
+                var newRow = tablaResultado.getElementsByTagName('tbody')[0].insertRow();
+                newRow.insertCell(0).textContent = row.nroCuenta;
+                newRow.insertCell(1).textContent = row.descripcion;
+                newRow.insertCell(2).textContent = row.mes;
+                newRow.insertCell(3).textContent = row.anio;
+                newRow.insertCell(4).textContent = row.total_debe;
+                newRow.insertCell(5).textContent = row.total_haber;
+                newRow.insertCell(6).textContent = row.saldo;
+            });
+        }
+
+        function volver() {
+            window.location.href = '../index.html';
+        }
+    </script>
+</body>
+</html>

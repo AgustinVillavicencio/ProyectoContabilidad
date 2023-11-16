@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3306
--- Tiempo de generación: 16-11-2023 a las 01:11:23
+-- Tiempo de generación: 16-11-2023 a las 04:28:11
 -- Versión del servidor: 8.0.31
 -- Versión de PHP: 8.0.26
 
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `libro_diario` (
   PRIMARY KEY (`id`),
   KEY `FK_mayor` (`FK_mayor`),
   KEY `FK_plan_de_cuentas` (`FK_plan_de_cuentas`)
-) ENGINE=MyISAM AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Volcado de datos para la tabla `libro_diario`
@@ -67,21 +67,7 @@ INSERT INTO `libro_diario` (`id`, `nroAsiento`, `fecha`, `debe`, `haber`, `FK_ma
 (19, 1, '2023-01-04', 100, 0, 1, 1001),
 (20, 1, '2023-01-04', 0, 100, 5, 4001),
 (21, 2, '2023-01-04', 50, 0, 6, 5002),
-(22, 2, '2023-01-04', 0, 50, 3, 1004),
-(23, 0, '0000-00-00', 0, 0, 0, 0),
-(24, 0, '0000-00-00', 0, 0, 0, 0),
-(25, 0, '0000-00-00', 0, 0, 0, 0),
-(26, 0, '0000-00-00', 0, 0, 0, 0),
-(27, 0, '0000-00-00', 0, 0, 0, 0),
-(28, 0, '0000-00-00', 0, 0, 0, 0),
-(29, 0, '0000-00-00', 0, 0, 0, 0),
-(30, 0, '0000-00-00', 0, 0, 0, 0),
-(31, 0, '0000-00-00', 0, 0, 0, 0),
-(32, 0, '0000-00-00', 0, 0, 0, 0),
-(33, 0, '0000-00-00', 0, 0, 0, 0),
-(34, 0, '0000-00-00', 0, 0, 0, 0),
-(35, 0, '0000-00-00', 0, 0, 0, 0),
-(36, 0, '0000-00-00', 0, 0, 0, 0);
+(22, 2, '2023-01-04', 0, 50, 3, 1004);
 
 -- --------------------------------------------------------
 
@@ -91,15 +77,31 @@ INSERT INTO `libro_diario` (`id`, `nroAsiento`, `fecha`, `debe`, `haber`, `FK_ma
 
 DROP TABLE IF EXISTS `libro_mayor`;
 CREATE TABLE IF NOT EXISTS `libro_mayor` (
-  `id` int NOT NULL,
+  `id` int NOT NULL AUTO_INCREMENT,
   `anio` int DEFAULT NULL,
   `mes` int DEFAULT NULL,
-  `nroCuenta` varchar(255) DEFAULT NULL,
+  `nroCuenta` int DEFAULT NULL,
   `total_debe` double DEFAULT NULL,
   `total_haber` double DEFAULT NULL,
   `saldo` double DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Volcado de datos para la tabla `libro_mayor`
+--
+
+INSERT INTO `libro_mayor` (`id`, `anio`, `mes`, `nroCuenta`, `total_debe`, `total_haber`, `saldo`) VALUES
+(1, 2023, 1, 1001, 1400, 600, 800),
+(2, 2023, 1, 1002, 1050, 1050, 0),
+(3, 2023, 1, 1004, 250, 150, 0),
+(4, 2023, 1, 3001, 0, 250, -250),
+(5, 2023, 1, 4001, 0, 300, -300),
+(6, 2023, 1, 5002, 150, 0, 150),
+(7, 2023, 1, 2002, 0, 2000, -2000),
+(8, 2023, 1, 1003, 1500, 0, 1500),
+(9, 2023, 1, 2001, 0, 0, 0),
+(10, 2023, 1, 5001, 0, 0, 0);
 
 -- --------------------------------------------------------
 
